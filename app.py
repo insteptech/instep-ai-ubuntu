@@ -13,6 +13,10 @@ logging.basicConfig(level=logging.DEBUG)
 def home():
     return "Welcome to My Fun Flask App!"
 
+@app.route('/test')
+def test():
+    return "test route"
+
 @app.route('/generate-image', methods=['POST'])
 def textToImage():
     try:
