@@ -1,7 +1,1 @@
-diffusers
-torch
-pillow
-transformers
-accelerate
 flask
-pytorch_lightning
