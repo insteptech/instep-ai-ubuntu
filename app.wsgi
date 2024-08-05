@@ -8,7 +8,7 @@ logging.basicConfig(stream=sys.stderr)
 project_home = '/var/www/ai.com/instep-ai-ubuntu'
 venv_home = os.path.join(project_home, 'venv', 'bin')
 
-print_r(venv_home)
+print(venv_home)
 
 # Add the project directory to the sys.path
 if project_home not in sys.path:
@@ -17,7 +17,7 @@ if project_home not in sys.path:
 # Activate the virtual environment
 activate_this = os.path.join(venv_home, 'activate')
 
-print_r(activate_this)
+print(activate_this)
 with open(activate_this) as file_:
     exec(file_.read(), dict(__file__=activate_this))
 
