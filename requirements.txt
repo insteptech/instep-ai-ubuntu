@@ -1,2 +1,10 @@
 Flask
 gunicorn
+diffusers
+torch
+pillow
+transformers
+accelerate
+watchdog
+pytorch_lightning
+python-dotenv
