@@ -4,7 +4,7 @@ import logging
 from services.textToImage import generateImage, load_model
 from utils.helper import BASE_DIR, IMG_DIR
 import os
-
+import torch
 app = Flask(__name__)
 
 # Set up logging
@@ -13,6 +13,12 @@ logging.basicConfig(level=logging.DEBUG)
 
 @app.route('/')
 def home():
+    if torch.cuda.is_available():
+        device = torch.device('cuda')
+        print('Using CUDA')
+    else:
+        device = torch.device('cpu')
+        print('Using CPU')
     return "Welcome to My Fun Flask App!"
 
 @app.route('/test')
