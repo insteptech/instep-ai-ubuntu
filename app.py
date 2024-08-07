@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, send_from_directory
 from transformers import pipeline
 import logging
-from services.textToImage import generateImage
+from services.textToImage import generateImage, load_model
 from utils.helper import BASE_DIR, IMG_DIR
 import os
 
@@ -59,4 +59,5 @@ def serve_image(filename):
     return send_from_directory(os.path.join(BASE_DIR, IMG_DIR),filename)
 
 if __name__ == '__main__':
+    load_model("CompVis/stable-diffusion-v1-4")
     app.run(debug=True)

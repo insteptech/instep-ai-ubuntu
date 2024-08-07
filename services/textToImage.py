@@ -25,7 +25,7 @@ def load_model(model_id):
         
         # Check if GPU is available and set device accordingly
         device = "cuda" if torch.cuda.is_available() else "cpu"
-        
+        logging.info(f'device----{device}')
         # Load the model
         pipe = StableDiffusionPipeline.from_pretrained(
             model_id, 
