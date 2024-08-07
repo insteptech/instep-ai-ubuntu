@@ -78,6 +78,11 @@ WorkingDirectory=/var/www/ai.com/instep-ai-ubuntu
 Environment="PATH=/var/www/ai.com/instep-ai-ubuntu/venv/bin"
 ExecStart=/var/www/ai.com/instep-ai-ubuntu/venv/bin/gunicorn --workers 3 --bind unix:my_flask_app.sock -m 007 app:app
 
+# Restart on failure
+
+Restart=always
+RestartSec=3
+
 [Install]
 WantedBy=multi-user.target
 
@@ -92,3 +97,71 @@ sudo systemctl enable my_flask_app
 
 sudo journalctl -u my_flask_app
 sudo tail -f /var/log/apache2/flask_app_error.log
+
+Reload the Systemd Daemon
+Whenever you create or modify a systemd service file, you need to reload the systemd daemon to apply the changes:
+
+sudo systemctl daemon-reload
+
+Step 3: Restart the Gunicorn Service
+Restart the Gunicorn service to apply any changes or to simply restart the application:
+
+sudo systemctl restart my_flask_app
+
+Step 4: Enable the Service (if not already enabled)
+Ensure that your service starts on boot:
+
+sudo systemctl enable my_flask_app
+
+Step 5: Check the Status of the Service
+You can check the status of your Gunicorn service to ensure it is running correctly:
+
+sudo systemctl status my_flask_app
+Example Output
+You should see output similar to this:
+
+● my_flask_app.service - Gunicorn instance to serve my Flask app
+Loaded: loaded (/etc/systemd/system/my_flask_app.service; enabled; vendor preset: enabled)
+Active: active (running) since Mon 2024-08-05 10:00:00 UTC; 10s ago
+Main PID: 1234 (gunicorn)
+Tasks: 3 (limit: 1152)
+Memory: 50.0M
+CGroup: /system.slice/my_flask_app.service
+├─1234 /var/www/ai.com/instep-ai-ubuntu/venv/bin/gunicorn --workers 3 --bind unix:/var/www/ai.com/instep-ai-ubuntu/my_flask_app.sock -m 007 app:app
+├─1235 /var/www/ai.com/instep-ai-ubuntu/venv/bin/gunicorn --workers 3 --bind unix:/var/www/ai.com/instep-ai-ubuntu/my_flask_app.sock -m 007 app:app
+└─1236 /var/www/ai.com/instep-ai-ubuntu/venv/bin/gunicorn --workers 3 --bind unix:/var/www/ai.com/instep-ai-ubuntu/my_flask_app.sock -m 007 app:app
+Troubleshooting
+If you encounter any issues, check the logs for more information:
+
+sudo journalctl -u my_flask_app
+
+Using nohup and &
+If you want to run Gunicorn in the background and keep it running even after logging out, you can use nohup with &:
+
+Run Gunicorn with nohup:
+
+nohup /var/www/ai.com/instep-ai-ubuntu/venv/bin/gunicorn --workers 3 --bind 127.0.0.1:8000 app:app &
+
+Check nohup.out for Logs:
+
+By default, nohup will write output to nohup.out in the current directory. You can specify a different log file if needed.
+
+nohup /var/www/ai.com/instep-ai-ubuntu/venv/bin/gunicorn --workers 3 --bind 127.0.0.1:8000 app:app > /var/log/my_flask_app.log 2>&1 &
+
+For Gunicorn Logs
+If you're using systemd to manage Gunicorn, you can check the logs in real-time using journalctl:
+
+Real-Time Logs with journalctl:
+
+sudo journalctl -u my_flask_app -f
+The -f option will follow the log file and show new entries as they are written.
+
+Step 1: Find the Gunicorn Process ID (PID)
+You can use the ps command to find the PID of the Gunicorn process. Gunicorn processes typically show up with the command gunicorn.
+
+ps aux | grep gunicorn
+
+If the process does not stop, you can use the -9 option to force kill it:
+
+kill <PID>
+kill -9 1234

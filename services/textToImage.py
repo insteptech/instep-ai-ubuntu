@@ -4,7 +4,6 @@ from diffusers import StableDiffusionPipeline
 import logging
 import io
 import threading
-from base64 import b64encode
 from utils.helper import IMG_DIR
 import os
 from datetime import datetime
@@ -28,7 +27,12 @@ def load_model(model_id):
         device = "cuda" if torch.cuda.is_available() else "cpu"
         
         # Load the model
-        pipe = StableDiffusionPipeline.from_pretrained(model_id, revision="fp16", torch_dtype= torch.float16, use_auth_token="auth_token")
+        pipe = StableDiffusionPipeline.from_pretrained(
+            model_id, 
+            revision="fp16", 
+            torch_dtype=torch.float16, 
+            use_auth_token=os.getenv("AUTH_TOKEN")
+        )
         pipe = pipe.to(device)
         
         # Cache the model
@@ -41,12 +45,13 @@ def warm_up_model(pipe, prompt):
     try:
         _ = pipe(prompt)
     except Exception as e:
-        print(f"Warm-up failed: {str(e)}")
+        logging.error(f"Warm-up failed: {str(e)}")
+
 
 def generate_images(pipe, prompt, num_images):
     try:
-        warm_up_model(pipe, prompt)
-        logging.debug(f"warm_up_model done")
+        # warm_up_model(pipe, prompt)
+        logging.debug("Warm-up model done")
         device = pipe.device
         images = []
 
@@ -61,41 +66,40 @@ def generate_images(pipe, prompt, num_images):
                 raise ValueError("Model returned None or invalid images")
 
             images.append(result.images[0])
-        logging.debug(f"generate_images done")
-        # if isinstance(images, tuple) and images[1] == 500:
-        #     return images
+        logging.debug("Image generation done")
 
-        save_dir = './' + IMG_DIR
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-
-
-        # Create a directory to save images
-        img_files = []
-        for idx, img in enumerate(images):
-            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-            image_name = f'image_{idx + 1}_{timestamp}.png'
-            img_path = os.path.join(save_dir, image_name)
-            img.save(img_path, 'PNG')
-            img_files.append(request.host_url + "images/" + image_name)
-
-            # img_io = io.BytesIO()
-            # img.save(img_io, 'PNG')
-            # img_io.seek(0)
-            # img_files.append(b64encode(img_io.getvalue()).decode('utf-8'))
+        # Save images to directory
+        img_files = save_images(images)
         return jsonify({"message": "Multiple images generated", "images": img_files})
 
-        # return jsonify({"message": "Multiple images generated", "images": [image.getvalue().hex() for image in images]})
-
     except ValueError as e:
+        logging.error(f"ValueError: {str(e)}")
         return f"An error occurred: {str(e)}", 500
     except TypeError as e:
+        logging.error(f"TypeError: {str(e)}")
         return f"An error occurred: {str(e)}", 500
     except Exception as e:
+        logging.error(f"Unexpected error: {str(e)}")
         return f"An unexpected error occurred: {str(e)}", 500
 
 
+def save_images(images):
+    """Save generated images to a directory and return their URLs."""
+    save_dir = './' + IMG_DIR
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+
+    img_files = []
+    for idx, img in enumerate(images):
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        image_name = f'image_{idx + 1}_{timestamp}.png'
+        img_path = os.path.join(save_dir, image_name)
+        img.save(img_path, 'PNG')
+        img_files.append(request.host_url + "images/" + image_name)
+
+    return img_files
+
+
 def generateImage(model_id, prompt, num_images):
-        pipe = load_model(model_id)
-    
-        return generate_images(pipe, prompt, num_images)
+    pipe = load_model(model_id)
+    return generate_images(pipe, prompt, num_images)
