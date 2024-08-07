@@ -39,8 +39,6 @@ def textToImage():
             if not model_id or not prompt:
                 return jsonify({"message": "Both Model ID and Prompt are required", "success":False})
             
-            # future = executor.submit(generateImage, model_id, prompt, num_images)
-            # return future.result()
             return generateImage(model_id, prompt, num_images)
 
     except Exception as e:
