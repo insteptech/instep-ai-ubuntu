@@ -56,7 +56,7 @@ def serve_image(filename):
     logging.info(f"IMG_DIR: {IMG_DIR}")
     if not os.path.isfile(file_path):
         logging.error(f"File not found: {file_path}")
-        return jsonify({"message":"File not found", "success": False}), 404
+        return jsonify({"message":"File not found", "success": False}), 500
     
     return send_from_directory(os.path.join(BASE_DIR, IMG_DIR),filename)
 
