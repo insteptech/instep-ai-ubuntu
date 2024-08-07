@@ -40,6 +40,17 @@ def load_model(model_id):
         
         return pipe
 
+def validate_and_truncate_prompt(pipe, prompt):
+    tokens = pipe.tokenizer.encode(prompt, return_tensors="pt")
+    max_length = pipe.tokenizer.model_max_length
+    if tokens.size(1) <= max_length:
+        return prompt  # Return the original prompt if within the limit
+    
+    logging.debug(f"Prompt exceeds maximum length of {max_length} tokens, truncating the prompt")
+    # Truncate the prompt
+    truncated_tokens = tokens[:, :max_length]
+    truncated_prompt = pipe.tokenizer.decode(truncated_tokens[0], skip_special_tokens=True)
+    return truncated_prompt
 
 def warm_up_model(pipe, prompt):
     try:
@@ -102,4 +113,5 @@ def save_images(images):
 
 def generateImage(model_id, prompt, num_images):
     pipe = load_model(model_id)
-    return generate_images(pipe, prompt, num_images)
+    valid_prompt = validate_and_truncate_prompt(pipe, prompt)
+    return generate_images(pipe, valid_prompt, num_images)
