@@ -29,6 +29,9 @@ pip install Flask gunicorn
 
 gunicorn app:app --bind 127.0.0.1:8000
 
+\*120 means 120 seconds
+gunicorn --timeout 120 app:app --bind 127.0.0.1:8000
+
 5. Install Apache and mod_proxy
    If you haven't installed Apache yet, do so:
 

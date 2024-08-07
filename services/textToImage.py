@@ -61,6 +61,7 @@ def warm_up_model(pipe, prompt):
 
 def generate_images(pipe, prompt, num_images):
     try:
+        torch.cuda.empty_cache()  # Clear GPU memory
         # warm_up_model(pipe, prompt)
         logging.debug("Warm-up model done")
         device = pipe.device
