@@ -32,7 +32,7 @@ def load_model(model_id):
             # torch_dtype=torch.float16, 
             # use_auth_token=os.getenv("AUTH_TOKEN")
         )
-        pipe.enable_model_cpu_offload()
+        # pipe.enable_model_cpu_offload()
         pipe = pipe.to(device)
         
         # Cache the model
