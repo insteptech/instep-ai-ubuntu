@@ -14,6 +14,9 @@ logging.basicConfig(level=logging.DEBUG)
 model_cache = {}
 model_lock = threading.Lock()
 
+    # "model_id": "CompVis/stable-diffusion-v1-4",
+    # "model_id": "stabilityai/stable-diffusion-2",
+    # "model_id":"runwayml/stable-diffusion-v1-5",
 def load_model(model_id):
     """Load and cache the model."""
     with model_lock:

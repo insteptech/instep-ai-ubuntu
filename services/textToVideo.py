@@ -6,20 +6,54 @@ from utils.helper import VIDEO_DIR
 import os
 from datetime import datetime
 import logging
+import threading
 logging.basicConfig(level=logging.DEBUG)
+
+model_cache = {}
+model_lock = threading.Lock()
+
+def load_model(model_id):
+    """Load and cache the model."""
+    with model_lock:
+        if model_id in model_cache:
+            logging.debug(f"Using cached model for {model_id}")
+            return model_cache[model_id]
+        
+        logging.debug(f"Loading new model for {model_id}")
+        
+        # Check if GPU is available and set device accordingly
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        logging.info(f'device----{device}')
+        # Load the model
+        pipe = DiffusionPipeline.from_pretrained(
+            model_id, 
+            # revision="fp16", 
+            # torch_dtype=torch.float16, 
+            use_auth_token=os.getenv("AUTH_TOKEN")
+        )
+        pipe.enable_model_cpu_offload()
+        pipe = pipe.to(device)
+        
+        # Cache the model
+        model_cache[model_id] = pipe
+        
+        return pipe
+
 
 def generateVideo(prompt):
     try:
+        model_id= "THUDM/CogVideoX-2b"
         device = "cuda" if torch.cuda.is_available() else "cpu"
         save_dir = './' + VIDEO_DIR
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
 
-        pipe = DiffusionPipeline.from_pretrained(
-        "THUDM/CogVideoX-2b",
-        torch_dtype=torch.float16
-    )
-        pipe.enable_model_cpu_offload()
+    #     pipe = DiffusionPipeline.from_pretrained(
+    #     "THUDM/CogVideoX-2b",
+    #     torch_dtype=torch.float16
+    # )
+    #     pipe.enable_model_cpu_offload()
+        pipe = load_model(model_id)
         prompt_embeds, _ = pipe.encode_prompt(
         prompt=prompt,
         do_classifier_free_guidance=True,
