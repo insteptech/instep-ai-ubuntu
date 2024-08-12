@@ -5,8 +5,11 @@ from services.textToImage import generateImage, load_model
 from services.textToVideo import generateVideo
 from utils.helper import BASE_DIR, IMG_DIR, VIDEO_DIR
 import os
+from dotenv import load_dotenv 
 import torch
 app = Flask(__name__)
+
+load_dotenv() 
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
