@@ -30,7 +30,7 @@ pip install Flask gunicorn
 gunicorn app:app --bind 127.0.0.1:8000
 
 \*120 means 120 seconds
-gunicorn --timeout 120 app:app --bind 127.0.0.1:8000
+gunicorn --timeout 12000 app:app --bind 127.0.0.1:8000
 
 5. Install Apache and mod_proxy
    If you haven't installed Apache yet, do so:
@@ -94,6 +94,11 @@ WantedBy=multi-user.target
 
 sudo systemctl start my_flask_app
 sudo systemctl enable my_flask_app
+
+Ensure that the www-data user has the necessary permissions to create the socket file in the directory:
+
+sudo chown -R www-data:www-data /var/www/ai.com/instep-ai-ubuntu
+sudo chmod -R 755 /var/www/ai.com/instep-ai-ubuntu
 
 10. Check Everything
     Finally, check your Apache and Gunicorn logs to ensure everything is running smoothly:
@@ -168,3 +173,5 @@ If the process does not stop, you can use the -9 option to force kill it:
 
 kill <PID>
 kill -9 1234
+
+wget https://developer.download.nvidia.com/compute/cuda/12.6.0/local_installers/cuda_12.6.0_560.28.03_linux.run

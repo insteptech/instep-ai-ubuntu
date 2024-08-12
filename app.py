@@ -2,7 +2,8 @@ from flask import Flask, request, jsonify, send_from_directory
 from transformers import pipeline
 import logging
 from services.textToImage import generateImage, load_model
-from utils.helper import BASE_DIR, IMG_DIR
+from services.textToVideo import generateVideo
+from utils.helper import BASE_DIR, IMG_DIR, VIDEO_DIR
 import os
 import torch
 app = Flask(__name__)
@@ -63,6 +64,40 @@ def serve_image(filename):
         return jsonify({"message":"File not found", "success": False}), 500
     
     return send_from_directory(os.path.join(BASE_DIR, IMG_DIR),filename)
+
+
+@app.route('/video/<filename>')
+def serve_video(filename):
+    file_path = os.path.join(VIDEO_DIR, filename)
+    logging.info(f"File found: {file_path}")
+    logging.info(f"BASE_DIR: {BASE_DIR}")
+    logging.info(f"IMG_DIR: {VIDEO_DIR}")
+    if not os.path.isfile(file_path):
+        logging.error(f"File not found: {file_path}")
+        return jsonify({"message":"File not found", "success": False}), 500
+    
+    return send_from_directory(os.path.join(BASE_DIR, VIDEO_DIR),filename)
+
+@app.route("/generate-video", methods=["POST"])
+def textToVideo():
+    try:
+            if request.content_type != 'application/json':
+                return jsonify({"error": "Content-Type must be application/json"}), 400
+            
+            requestBody = request.get_json()
+            if requestBody is None:
+                return jsonify({"error": "Invalid JSON payload"}), 400
+            
+            logging.debug(f"prompt {requestBody}") 
+            prompt = requestBody.get('prompt')
+           
+            if not prompt:
+                return jsonify({"message": "Prompt are required", "success":False})
+            
+            return generateVideo(prompt)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     load_model("CompVis/stable-diffusion-v1-4")
