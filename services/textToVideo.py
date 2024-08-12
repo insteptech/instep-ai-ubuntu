@@ -30,7 +30,7 @@ def load_model(model_id):
             model_id, 
             # revision="fp16", 
             # torch_dtype=torch.float16, 
-            use_auth_token=os.getenv("AUTH_TOKEN")
+            # use_auth_token=os.getenv("AUTH_TOKEN")
         )
         pipe.enable_model_cpu_offload()
         pipe = pipe.to(device)
