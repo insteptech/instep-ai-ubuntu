@@ -29,7 +29,7 @@ def load_model(model_id):
         pipe = DiffusionPipeline.from_pretrained(
             model_id, 
             # revision="fp16",
-            torch_dtype=torch.float16, 
+            torch_dtype=torch.float32, 
             # use_auth_token=os.getenv("AUTH_TOKEN")
         )
         # pipe.enable_model_cpu_offload()
