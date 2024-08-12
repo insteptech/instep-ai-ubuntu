@@ -30,7 +30,7 @@ def load_model(model_id):
             model_id, 
             # revision="fp16", 
             # torch_dtype=torch.float16, 
-            # use_auth_token=os.getenv("AUTH_TOKEN")
+            use_auth_token=os.getenv("AUTH_TOKEN")
         )
         pipe.enable_model_cpu_offload()
         pipe = pipe.to(device)
@@ -55,6 +55,7 @@ def generateVideo(prompt):
     # )
     #     pipe.enable_model_cpu_offload()
         pipe = load_model(model_id)
+        logging.info(f'pipe----')
         prompt_embeds, _ = pipe.encode_prompt(
         prompt=prompt,
         do_classifier_free_guidance=True,
@@ -63,11 +64,13 @@ def generateVideo(prompt):
         device=device,
         dtype=torch.float16,
     )
+        logging.info(f'prompt_embeds----')
         video = pipe(
         num_inference_steps=50,
         guidance_scale=6,
         prompt_embeds=prompt_embeds,
     ).frames[0]
+        logging.info(f'video----')
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         video_name = f'video_{timestamp}.mp4'
         video_path = os.path.join(save_dir, video_name)
