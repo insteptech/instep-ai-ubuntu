@@ -14,6 +14,7 @@ model_lock = threading.Lock()
 
 def load_model(model_id):
     """Load and cache the model."""
+    logging.debug(f'{os.getenv("AUTH_TOKEN")}-opopopopo')
     with model_lock:
         if model_id in model_cache:
             logging.debug(f"Using cached model for {model_id}")
