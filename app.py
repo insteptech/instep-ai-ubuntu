@@ -3,6 +3,7 @@ from transformers import pipeline
 import logging
 from services.textToImage import generateImage, load_model
 from services.textToVideo import generateVideo
+from services.textGeneration import generateText
 from utils.helper import BASE_DIR, IMG_DIR, VIDEO_DIR
 import os
 from dotenv import load_dotenv 
@@ -101,6 +102,29 @@ def textToVideo():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@app.route("/generate-text", methods=["POST"])
+def textGeneration():
+    try:
+            if request.content_type != 'application/json':
+                return jsonify({"error": "Content-Type must be application/json"}), 400
+            
+            requestBody = request.get_json()
+            if requestBody is None:
+                return jsonify({"error": "Invalid JSON payload"}), 400
+            
+            logging.debug(f"prompt {requestBody}") 
+            prompt = requestBody.get('prompt')
+           
+            if not prompt:
+                return jsonify({"message": "Prompt are required", "success":False})
+            
+            return generateText(prompt)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == '__main__':
     load_model("CompVis/stable-diffusion-v1-4")
